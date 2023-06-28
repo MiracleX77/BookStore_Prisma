@@ -10,7 +10,6 @@ const create = async(): Promise<User> => {
             surname : "phatchara",
         },
     })
-
     return newUser
 };
 
@@ -18,5 +17,7 @@ const findUsers = async() : Promise<User[]> => {
     const users = await prisma.user.findMany();
     return users
 };
+
+
 
 findUsers().then((res) => console.log(res))
