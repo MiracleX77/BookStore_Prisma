@@ -6,8 +6,8 @@ const prisma = new PrismaClient()
 const create = async(): Promise<User> => {
     const newUser = await prisma.user.create({
         data: {
-            name:"big",
-            surname : "phatchara",
+            name:"big 2",
+            surname : "phatchara 2",
         },
     })
     return newUser
@@ -20,4 +20,4 @@ const findUsers = async() : Promise<User[]> => {
 
 
 
-findUsers().then((res) => console.log(res))
+create().then((res) => console.log(res))

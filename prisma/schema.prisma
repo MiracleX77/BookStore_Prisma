@@ -11,7 +11,36 @@ datasource db {
 }
 
 model User {
-  id String @id @default(cuid())
-  name String 
-  surname String
+  id Int @id @default(autoincrement())
+  username String? @db.VarChar(45) @unique 
+  password String? @db.VarChar(45)
+  name String? @db.VarChar(45) 
+  surname String? @db.VarChar(45)
+  phone String? @db.VarChar(12)
+  email String? @db.VarChar(100)
+  create_at DateTime @default(now())
+  update_at DateTime? @updatedAt
+  update_by Int?
+  status String @default("active") @db.VarChar(45)
+
+  //relation
+  updater Admin? @relation("userUpdater",fields: [update_by], references: [id])
 }
+model Admin {
+  id Int @id @default(autoincrement())
+  username String? @db.VarChar(45) @unique 
+  password String? @db.VarChar(45)
+  name String? @db.VarChar(45) 
+  surname String? @db.VarChar(45)
+  phone String? @db.VarChar(12)
+  email String? @db.VarChar(100)
+  create_at DateTime @default(now())
+  update_at DateTime? @updatedAt
+  status String @default("active") @db.VarChar(45)
+  
+  //relation
+  updater User[] @relation("userUpdater")
+}
+
+
+
