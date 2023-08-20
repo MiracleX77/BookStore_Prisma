@@ -1,11 +1,13 @@
 import {PrismaClient,User} from '@prisma/client';
 import { Prisma } from '.prisma/client';
-import {UserData} from '../interfaces/userData';
+import {UserInterface} from '../interfaces/userInterface';
 
 const prisma = new PrismaClient();
 
-export const create = async(data:UserData):Promise<User> =>{
+export const create = async(data:UserInterface):Promise<User> =>{
     const user = await prisma.user.create({data});
+    await prisma.$disconnect();
+
     return user;
 }
 
@@ -20,6 +22,7 @@ export const find = async(columnName: string,value:string):Promise<User | null> 
             }
             
         });
+        await prisma.$disconnect();
         return user;
     }
     else{
