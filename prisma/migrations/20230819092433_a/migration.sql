@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "create_at" SET DATA TYPE DATE,
+ALTER COLUMN "update_at" SET DATA TYPE DATE;
