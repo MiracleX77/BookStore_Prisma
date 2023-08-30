@@ -18,8 +18,8 @@ model User {
   surname String? @db.VarChar(45)
   phone String? @db.VarChar(12)
   email String? @db.VarChar(100)
-  create_at DateTime @default(now()) @db.Timetz(3)
-  update_at DateTime @updatedAt @db.Timetz(3)
+  create_at DateTime @default(now()) @db.Timestamptz(3)
+  update_at DateTime @updatedAt @db.Timestamptz(3)
   update_by Int?
   status String @default("active") @db.VarChar(45)
 
@@ -41,6 +41,8 @@ model Admin {
   
   //relation
   updater User[] @relation("userUpdater")
+  creator Product[] @relation("productCreator")
+  productUpdater Product[] @relation("productUpdater")
 }
 
 model Address {
@@ -105,6 +107,63 @@ model SubDistrict{
   addressSub_district Address[] @relation("addressSub_district")
 
 
+}
+
+model Product{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  price Float? 
+  description String? @db.VarChar(500)
+  count_rent Int? @default(0)
+  create_at DateTime @default(now()) @db.Timestamptz(3)
+  create_by Int?
+  update_at DateTime @updatedAt @db.Timestamptz(3)
+  update_by Int?
+  status String @default("active") @db.VarChar(45)
+  img_id Int? @unique
+
+  //relation
+  img Img? @relation("productImg",fields:[img_id],references:[id])
+  updater Admin? @relation("productUpdater",fields: [update_by], references: [id])
+  creator Admin? @relation("productCreator",fields: [create_by], references: [id])
+  costRent CostRent[]
+  stock Stock[]
+}
+model CostRent{
+  id Int @id @default(autoincrement())
+  product_id Int?
+  cost_base Float?
+  cost_per_day Int?
+  create_at DateTime @default(now()) @db.Timestamptz(3)
+  update_at DateTime @updatedAt @db.Timestamptz(3)
+  status String @default("active") @db.VarChar(45)
+
+  //relation
+  product Product? @relation(fields:[product_id],references:[id])
+}
+model Stock{
+  id Int @id @default(autoincrement())
+  product_id Int?
+  size String @db.VarChar(45)
+  status String @default("active") @db.VarChar(45)
+  //relation
+  product Product? @relation(fields:[product_id],references:[id])
+}
+model Img {
+  id Int @id @default(autoincrement())
+  //relation
+  product Product? @relation("productImg")
+  imgDetail ImgDetail[]
+}
+
+model ImgDetail {
+  id Int @id @default(autoincrement())
+  img_id Int?
+  img_url_s String @db.VarChar(500)
+  img_url_m String @db.VarChar(500)
+  img_url_l String @db.VarChar(500)
+  //relation
+  img Img? @relation(fields:[img_id],references:[id])
 }
 
 

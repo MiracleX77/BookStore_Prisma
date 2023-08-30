@@ -5,6 +5,8 @@ import cors from 'cors';
 import morgan from 'morgan';
 import authRoute from './routes/authRoute'
 import userRoute from './routes/userRoute'
+import adminRoute from './routes/adminRoute'
+
 
 
 import dotenv from 'dotenv';
@@ -20,6 +22,8 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use('/api/auth',authRoute);
 app.use('/api/user',userRoute);
+app.use('/api/admin',adminRoute);
+
 
 
 
