@@ -1,28 +1,33 @@
 import { Request, Response} from 'express';
 import {ProductInterface,ResponseProductInterface} from '../interfaces/productInterface';
+import { responser } from '../services/responseService';
+import {uploadImage} from '../services/uploadImgService';
+
 import * as costRentModel from '../models/costRentModel';
 import * as productModel from '../models/productModel';
 import * as imgModel from '../models/imgModel';
 import * as stockModel from '../models/stockModel';
-import sharp from 'sharp';
 
 
 export const getAllProduct = async (req:Request,res:Response)=>{
     try{
         const products = await productModel.findAll();
         if(!products){
-            res.status(404).json({message:'Product not found'});
+            const response = responser(false,"Product not found");
+            res.status(404).json(response);
             return;
         }
         const imgs = await imgModel.findAll();
         if(!imgs){
-            res.status(404).json({message:'Image not found'});
+            const response = responser(false,"Image not found");
+            res.status(404).json(response);
             return;
         }
 
         const cost_rents = await costRentModel.findAll();
         if(!cost_rents){
-            res.status(404).json({message:'Cost rent not found'});
+            const response = responser(false,"Cost rent not found");
+            res.status(404).json(response);
             return;
         }
 
@@ -58,11 +63,13 @@ export const getAllProduct = async (req:Request,res:Response)=>{
             }
             responseProducts.push(responseProduct);
         }
-        res.json(responseProducts);
+        const response = responser(true,"Get all product success",responseProducts);
+        res.json(response);
     }
     catch(e){
+        const response = responser(false,"ERR : 001");
         console.log(e);
-        res.status(500).json({message:'ERR : 001'});
+        res.status(500).json(response);
     }
 }
 
@@ -71,21 +78,25 @@ export const getProduct = async (req:Request,res:Response)=>{
     try{
         const product = await productModel.find(id);
         if(!product){
-            res.status(404).json({message:'Product not found'});
+            const response = responser(false,"Product not found");
+            res.status(404).json(response);
             return;
         }
         const cost_rent = await costRentModel.find(id);
         if(!cost_rent){
-            res.status(404).json({message:'Cost rent not found'});
+            const response = responser(false,"Cost rent not found");
+            res.status(404).json(response);
             return;
         }
         if(!product.img_id){
-            res.status(404).json({message:'Image not found'});
+            const response = responser(false,"Image not found");
+            res.status(404).json(response);
             return;
         }
         const img = await imgModel.find(product.img_id);
         if(!img){
-            res.status(404).json({message:'Image not found'});
+            const response = responser(false,"Image not found");
+            res.status(404).json(response);
             return;
         }
         const sizeCount = await stockModel.count(product.id);
@@ -109,28 +120,33 @@ export const getProduct = async (req:Request,res:Response)=>{
             updated_at:product.update_at
         }
 
-        res.json(responseProduct);
+        const response = responser(true,"Get product success",responseProduct);
+        res.json(response);
     }
     catch(e){
         console.log(e);
-        res.status(500).json({message:'ERR : 001'});
+        const response = responser(false,"ERR : 001");
+        res.status(500).json(response);
     }
 }
 
 export const createProduct = async (req:Request,res:Response)=>{
     const {name,price_base,price_per_day,description,size,created_by} = req.body;
     if(!name || !price_base || !price_per_day  || !created_by){
-        res.status(400).json({message:'Please enter all fields'});
+        const response = responser(false,"Please enter all fields");
+        res.status(400).json(response);
         return;
     }
     //insert image
     if(!req.file){
-        res.status(400).json({message:'Please upload image'});
+        const response =  responser(false,"Please upload image");
+        res.status(400).json(response);
         return;
     }
     const allowedType = ['image/png','image/jpg','image/jpeg'];
     if(!allowedType.includes(req.file.mimetype)){
-        res.status(400).json({message:'Please upload image'});
+        const response = responser(false,"Please upload image");
+        res.status(400).json(response);
         return;
     }
     const imageName = name.replace(/\s/g,'-') + '-' + Date.now() + '.jpg';
@@ -139,7 +155,7 @@ export const createProduct = async (req:Request,res:Response)=>{
     
     try{
 
-        const img = await imgModel.create(pathImage.smallImagePath,pathImage.mediumImagePath,pathImage.largeImagePath);
+        const img = await imgModel.create(pathImage.smallImagePath,pathImage.mediumImagePath,pathImage.largeImagePath,"product");
         
         const productData: ProductInterface = {
                 name: name,
@@ -166,11 +182,13 @@ export const createProduct = async (req:Request,res:Response)=>{
         }
         const stock = await stockModel.create(stockData);
 
-        res.json(product);    
+        const response = responser(true,"Create product success",product);
+        res.json(response);    
     }
     catch(e){
         console.log(e);
-        res.status(500).json({message:'ERR : 002'});
+        const response = responser(false,"ERR : 002");
+        res.status(500).json(response);
         return;
     }
 
@@ -181,28 +199,33 @@ export const updateProduct = async (req:Request,res:Response)=>{
     const id = parseInt(req.params.id);
     const {name,price_base,price_per_day,description,size,updated_by} = req.body;
     if(!name || !price_base || !price_per_day || !updated_by){
-        res.status(400).json({message:'Please enter all fields'});
+        const response = responser(false,"Please enter all fields");
+        res.status(400).json(response);
         return;
     }
     try{
         const product = await productModel.find(id);
         if(!product){
-            res.status(404).json({message:'Product not found'});
+            const response = responser(false,"Product not found");
+            res.status(404).json(response);
             return;
         }
         if(!product.img_id){
-            res.status(404).json({message:'Image not found'});
+            const response = responser(false,"Image not found");
+            res.status(404).json(response);
             return;
         }
         const cost_rent = await costRentModel.find(id);
         if(!cost_rent){
-            res.status(404).json({message:'Cost rent not found'});
+            const response = responser(false,"Cost rent not found");
+            res.status(404).json(response);
             return;
         }
         
         const img = await imgModel.find(product.img_id);
         if(!img){
-            res.status(404).json({message:'Image not found'});
+            const response = responser(false,"Image not found");
+            res.status(404).json(response);
             return;
         }
 
@@ -214,7 +237,7 @@ export const updateProduct = async (req:Request,res:Response)=>{
                     if(sizeCount[i].size === sizeStock[0][j]){
                         sizeStock[1][j] = (parseInt(sizeStock[1][j]) - sizeCount[i].count).toString();
                         if(parseInt(sizeStock[1][j]) < 0){
-                        const stock = await stockModel.findFilter(product.id,sizeStock[0][j]);
+                        const stock = await stockModel.findFilterAll(product.id,sizeStock[0][j],"active");
                         if(stock){
                             for(let k=0;k<Math.abs(parseInt(sizeStock[1][j]));k++){
                                 const s = await stockModel.remove(stock[k].id);
@@ -243,7 +266,8 @@ export const updateProduct = async (req:Request,res:Response)=>{
         if(req.file){
             const allowedType = ['image/png','image/jpg','image/jpeg'];
             if(!allowedType.includes(req.file.mimetype)){
-                res.status(400).json({message:'Please upload image'});
+                const response = responser(false,"Please upload image");
+                res.status(400).json(response);
                 return;
             }
             const imageName = name.replace(/\s/g,'-') + '-' + Date.now() + '.jpg';
@@ -266,11 +290,13 @@ export const updateProduct = async (req:Request,res:Response)=>{
         console.log(productUpdate);
         console.log(cost_rentUpdate);
         
-        res.json(productUpdate);
+        const response =    responser(true,"Update product success",productUpdate);
+        res.json(response);
     }
     catch(e){
         console.log(e);
-        res.status(500).json({message:'ERR : 002'});
+        const response = responser(false,"ERR : 002");
+        res.status(500).json(response);
         return;
     }
 }
@@ -279,7 +305,8 @@ export const removeProduct = async (req:Request,res:Response)=>{
     try{
         const product = await productModel.find(id);
         if(!product){
-            res.status(404).json({message:'Product not found'});
+            const response = responser(false,"Product not found");
+            res.status(404).json(response);
             return;
         }
         await costRentModel.removeAll(product.id);
@@ -287,37 +314,17 @@ export const removeProduct = async (req:Request,res:Response)=>{
         const stock = await stockModel.removeAll(product.id);
 
         const productRemove = await productModel.remove(id);
-        res.json(productRemove);
+        
+        const response = responser(true,"Remove product success",productRemove);
+        res.json(response);
     }
     catch(e){
         console.log(e);
-        res.status(500).json({message:'ERR : 002'});
+        const response = responser(false,"ERR : 002");
+        res.status(500).json(response);
         return;
     }
 
 }
 
 
-const uploadImage= async (imgBuffer:Buffer,imgName:string)=>{
-
-    const smallImage =  await sharp(imgBuffer).resize(200,200).toBuffer();
-    const mediumImage = await sharp(imgBuffer).resize(400,400).toBuffer();
-    const largeImage = await sharp(imgBuffer).resize(800,800).toBuffer();
-
-    const smallImageName = imgName.replace('.jpg','-small.jpg');
-    const mediumImageName = imgName.replace('.jpg','-medium.jpg');
-    const largeImageName = imgName.replace('.jpg','-large.jpg');
-
-    const imagePath = 'C:/Users/mrbig/Documents/pic';
-    const smallImagePath = imagePath + '/s/' + smallImageName;
-    const mediumImagePath = imagePath + '/m/' + mediumImageName;
-    const largeImagePath = imagePath + '/l/' + largeImageName;
-
-    await Promise.all([
-        sharp(smallImage).toFile(smallImagePath),
-        sharp(mediumImage).toFile(mediumImagePath),
-        sharp(largeImage).toFile(largeImagePath)
-    ]);
-    return {smallImagePath,mediumImagePath,largeImagePath};
-
-}

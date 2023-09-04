@@ -26,6 +26,8 @@ model User {
   //relation
   updater Admin? @relation("userUpdater",fields: [update_by], references: [id])
   address Address[] @relation("userAddress")
+  order Order[] @relation("userOrder")
+  transaction Transaction[] @relation("userTransaction")
 }
 model Admin {
   id Int @id @default(autoincrement())
@@ -43,15 +45,16 @@ model Admin {
   updater User[] @relation("userUpdater")
   creator Product[] @relation("productCreator")
   productUpdater Product[] @relation("productUpdater")
+
 }
 
 model Address {
   id Int @id @default(autoincrement())
-  user_id Int?
+  user_id Int
   address_line String @db.VarChar(300)
-  sub_district_id Int?
-  district_id Int?
-  province_id Int?
+  sub_district_id Int
+  district_id Int
+  province_id Int
   create_at DateTime @default(now()) @db.Timestamptz(3)
   update_at DateTime @updatedAt @db.Timestamptz(3)
   status String @default("active") @db.VarChar(45)
@@ -59,9 +62,11 @@ model Address {
 
   //relation
   user User? @relation("userAddress",fields:[user_id],references:[id])
-  addressSub_district SubDistrict? @relation("addressSub_district",fields:[sub_district_id],references:[id])
-  addressDistrict District? @relation("addressDistrict",fields:[district_id],references:[id])
-  addressProvince Provinces? @relation("addressProvince",fields:[province_id],references:[id])
+  addressSub_district SubDistrict @relation("addressSub_district",fields:[sub_district_id],references:[id])
+  addressDistrict District @relation("addressDistrict",fields:[district_id],references:[id])
+  addressProvince Provinces @relation("addressProvince",fields:[province_id],references:[id])
+  delivery Delivery[] @relation("deliveryAddress")
+
 
 
 
@@ -120,12 +125,14 @@ model Product{
   update_at DateTime @updatedAt @db.Timestamptz(3)
   update_by Int?
   status String @default("active") @db.VarChar(45)
-  img_id Int? @unique
+  img_id Int @unique
 
   //relation
   img Img? @relation("productImg",fields:[img_id],references:[id])
   updater Admin? @relation("productUpdater",fields: [update_by], references: [id])
   creator Admin? @relation("productCreator",fields: [create_by], references: [id])
+  transaction Transaction[] @relation("productTransaction")
+
   costRent CostRent[]
   stock Stock[]
 }
@@ -145,20 +152,26 @@ model Stock{
   id Int @id @default(autoincrement())
   product_id Int?
   size String @db.VarChar(45)
+  count_rent Int? @default(0)
   status String @default("active") @db.VarChar(45)
   //relation
   product Product? @relation(fields:[product_id],references:[id])
 }
 model Img {
   id Int @id @default(autoincrement())
+  img_type String? @db.VarChar(45)
+
   //relation
   product Product? @relation("productImg")
   imgDetail ImgDetail[]
+  paymemt Payment? @relation("paymentImg")
+  transactionbe Transaction? @relation("transactionbeImg")
+  transactionaf Transaction? @relation("transactionafImg")
 }
 
 model ImgDetail {
   id Int @id @default(autoincrement())
-  img_id Int?
+  img_id Int
   img_url_s String @db.VarChar(500)
   img_url_m String @db.VarChar(500)
   img_url_l String @db.VarChar(500)
@@ -166,6 +179,90 @@ model ImgDetail {
   img Img? @relation(fields:[img_id],references:[id])
 }
 
+model Order {
+  id String @id 
+  user_id Int 
+  delivery_id Int? @unique
+  payment_id Int @unique
+  type_delivery String @db.VarChar(45)
+  total_cost Float?
+  status String @default("active") @db.VarChar(45)
+  create_at DateTime @default(now()) @db.Timestamptz(3)
+  update_at DateTime? @updatedAt @db.Timestamptz(3)
 
+  //relation
+  user User @relation("userOrder",fields:[user_id],references:[id])
+  delivery Delivery? @relation("deliveryOrder",fields:[delivery_id],references:[id])
+  payment Payment @relation("paymentOrder",fields:[payment_id],references:[id])
+  transaction Transaction[] @relation("orderTransaction")
+
+}
+model Delivery{
+  id Int @id @default(autoincrement())
+  address_id Int
+  date_start DateTime @default(now()) @db.Timestamptz(3)
+  date_end DateTime?
+  delivery_type String? @db.VarChar(45)
+  tracking_number String? @db.VarChar(45)
+  status String @default("active") @db.VarChar(45)
+  
+  //relation
+  address Address @relation("deliveryAddress",fields:[address_id],references:[id])
+  order Order? @relation("deliveryOrder")
+}
+model Payment{
+  id Int @id @default(autoincrement())
+  type String @db.VarChar(45)
+  total_cost Float?
+  contact_name String @db.VarChar(45)
+  contact_phone String @db.VarChar(12)
+  email String @db.VarChar(100)
+  payment_at DateTime? @default(now()) @db.Timestamptz(3)
+  img_id Int @unique
+  status String @default("active") @db.VarChar(45)
+  update_at DateTime? @updatedAt @db.Timestamptz(3)
+
+  //relation
+  img Img @relation("paymentImg",fields:[img_id],references:[id])
+  order Order? @relation("paymentOrder")
+}
+
+model Transaction{
+  id Int @id @default(autoincrement())
+  user_id Int
+  order_id String?
+  product_id Int
+  rental_id Int @unique
+  img_before_id Int? @unique
+  img_after_id Int? @unique
+  size String @db.VarChar(45)
+  cost Float?
+  create_at DateTime @default(now()) @db.Timestamptz(3)
+  update_at DateTime? @updatedAt @db.Timestamptz(3)
+  status String @default("active") @db.VarChar(45)
+
+  //relation
+  imgbe Img? @relation("transactionbeImg",fields:[img_before_id],references:[id])
+  imgaf Img? @relation("transactionafImg",fields:[img_after_id],references:[id])
+  order Order? @relation("orderTransaction",fields:[order_id],references:[id])
+  product Product @relation("productTransaction",fields:[product_id],references:[id])
+  rental Rental @relation("rentalTransaction",fields:[rental_id],references:[id])
+  user User? @relation("userTransaction",fields:[user_id],references:[id])
+
+
+}
+
+model Rental{
+  id Int @id @default(autoincrement())
+  date_rent DateTime @default(now())
+  date_return DateTime?
+  date_receive DateTime?
+  total_cost Float?
+  status String @default("active") @db.VarChar(45)
+
+
+  //relation
+  transaction Transaction? @relation("rentalTransaction")
+}
 
 

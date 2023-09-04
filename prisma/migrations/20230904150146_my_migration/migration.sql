@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "ImgDetail" ALTER COLUMN "img_url_l" DROP NOT NULL,
+ALTER COLUMN "img_url_m" DROP NOT NULL,
+ALTER COLUMN "img_url_s" DROP NOT NULL;

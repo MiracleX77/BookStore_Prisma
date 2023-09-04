@@ -47,12 +47,23 @@ export const count = async (id: number): Promise<{ size: string; count: number }
     return sizeCountList;
 };
 
-export const findFilter = async (id:number,size:string):Promise<Stock[] | null> =>{
+export const findFilterOne = async (id:number,size:string,status:string):Promise<Stock | null> =>{
+    const stock = await prisma.stock.findFirst({
+        where:{
+            product_id:id,
+            size:size,
+            status:status
+        }
+    })
+    await prisma.$disconnect();
+    return stock;
+}
+export const findFilterAll = async (id:number,size:string,status:string):Promise<Stock[] | null> =>{
     const stock = await prisma.stock.findMany({
         where:{
             product_id:id,
             size:size,
-            status:'active'
+            status:status
         }
     })
     await prisma.$disconnect();
@@ -64,6 +75,18 @@ export const update = async(id:number,data:Stock):Promise<Stock> =>{
             id:id
         },
         data
+    })
+    await prisma.$disconnect();
+    return stock;
+}
+export const updateStatus = async(id:number,status:string):Promise<Stock> =>{
+    const stock = await prisma.stock.update({
+        where:{
+            id:id
+        },
+        data:{
+            status:status
+        }
     })
     await prisma.$disconnect();
     return stock;

@@ -1,6 +1,7 @@
 import * as productController from '../controllers/productController';
+import * as orderController from '../controllers/orderController';
 import express,{Router} from 'express';
-import {authenticateToken} from '../controllers/authController';
+import {authenticateToken} from '../services/authService';
 import multer from 'multer';
 
 const upload = multer();
@@ -12,8 +13,12 @@ router.get("/getAllProduct",productController.getAllProduct)
 router.put("/updateProduct/:id",upload.single('image'),productController.updateProduct)
 router.get("/removeProduct/:id",productController.removeProduct)
 
-
-
+//order route
+router.get("/getAllOrder",orderController.getAllOrder)
+router.get("/getOrder/:id",orderController.getOrder)
+router.get("/verifyPaymentOrder/:id",orderController.verifyPaymentOrder)
+router.get("/cancelPaymentOrder/:id",orderController.cancelPaymentOrder)
+router.post("/confirmShipmentOrder/:id",upload.array('image_before'),orderController.confirmShipmentOrder)
 
 
 

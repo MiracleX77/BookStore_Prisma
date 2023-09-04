@@ -1,15 +1,17 @@
 import {Request,Response,NextFunction} from 'express';
 import {UserInsertInterface,AdminInsertInterface} from '../interfaces/userInterface';
+import { responser } from '../services/responseService';
+import {generateAccessToken} from '../services/authService';
 import * as userModel from '../models/userModel';
 import * as adminModel from '../models/adminModel';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 
 
 export const login = async (req:Request, res:Response) =>{
     const {username,password} = req.body;
     if(!username || !password){
-        res.status(400).json({message:'All fields are required'});
+        const response = responser(false,"All fields are required");
+        res.status(400).json(response);
         return;
     }
     else{
@@ -17,7 +19,8 @@ export const login = async (req:Request, res:Response) =>{
             const user = await userModel.find('username',username);
             const admin = await adminModel.find('username',username);
             if(user === null && admin === null){
-                res.status(401).json({message:'Username does not exist'});
+                const response = responser(false,"Username does not exist");
+                res.status(401).json(response);
                 return;
             }
             else{
@@ -28,16 +31,19 @@ export const login = async (req:Request, res:Response) =>{
                         const userName = user.username;
                         const secret = process.env.JWT_SECRET;
                         if(!secret){
-                            res.status(500).json({message:'ERR : 001'});
+                            const response = responser(false,"ERR : 001");
+                            res.status(500).json(response);
                             return;
                         }
                         else{
                             const token = generateAccessToken(userName,'user');
-                            return res.json({token})
+                            const response = responser(true,"Login success",{token});
+                            return res.json(response)
                         }
                     }
                     else{
-                        res.status(403).json({message:'Password is incorrect'});
+                        const response = responser(false,"Password is incorrect");
+                        res.status(403).json(response);
                         return;
                     }
                 }
@@ -47,16 +53,19 @@ export const login = async (req:Request, res:Response) =>{
                         const userName = admin.username;
                         const secret = process.env.JWT_SECRET;
                         if(!secret){
-                            res.status(500).json({message:'ERR : 001'});
+                            const response = responser(false,"ERR : 001");
+                            res.status(500).json(response);
                             return;
                         }
                         else{
                             const token = generateAccessToken(userName,'admin');
-                            return res.json({token})
+                            const response = responser(true,"Login success",{token});
+                            return res.json(response)
                         }
                     }
                     else{
-                        res.status(403).json({message:'Password is incorrect'});
+                        const response = responser(false,"Password is incorrect");
+                        res.status(403).json(response);
                         return;
                     }
                 }
@@ -64,7 +73,8 @@ export const login = async (req:Request, res:Response) =>{
         }
         catch(e){
             console.log(e)
-            res.status(500).json({message:'ERR : 002'});
+            const response = responser(false,"ERR : 002");
+            res.status(500).json(response);
             return;
         }
     }
@@ -73,28 +83,33 @@ export const login = async (req:Request, res:Response) =>{
 export const register = async (req:Request, res:Response , ) =>{
     const {username,password,name,surname,phone,email,address,role,id_card,type} = req.body;
     if(!type){
-        res.status(400).json({message:'Invalid type'});
+        const response = responser(false,"All fields are required");
+        res.status(400).json(response);
         return;
     }
     if(type !== 'admin' && type !== 'user'){
-        res.status(400).json({message:'Invalid type'});
+        const response = responser(false,"All fields are required");
+        res.status(400).json(response);
         return;
     }
     if(type === 'admin'){
         if(!username || !password || !name ||!surname || !phone || !email || !address || !role || !id_card){
-            res.status(400).json({message:'All fields are required'});
+            const response = responser(false,"All fields are required");
+            res.status(400).json(response);
             return;
         }else{
             try{
                 const hashedPassword = await bcrypt.hash(password,10);
                 const admin = await adminModel.find('username',username);
                 if(admin !== null){
-                    res.status(400).json({message:'Username already exists'});
+                    const response = responser(false,"Username already exists");
+                    res.status(400).json(response);
                     return;
                 }
                 const user = await userModel.find('username',username);
                 if(user !== null){
-                    res.status(400).json({message:'Username already exists'});
+                    const response = responser(false,"Username already exists");
+                    res.status(400).json(response);
                     return;
                 }
                     else{
@@ -112,29 +127,34 @@ export const register = async (req:Request, res:Response , ) =>{
                     };
                     try{
                         const user = await adminModel.create(adminData);
-                        res.json(user);
+                        const response = responser(true,"Register success");
+                        res.json(response);
                     }
                     catch(e){
-                        res.json(e);
+                        const response = responser(false,"ERR : 002");
+                        res.json(response);
                     }
                 }
             }
             catch (e){
-                res.status(500).json({message:'ERR '});
+                const response = responser(false,"ERR : 002");
+                res.status(500).json(response);
                 return;
             }
         }
     }
     if(type === 'user'){
         if(!username || !password || !name || !surname || !phone || !email ){
-            res.status(400).json({message:'All fields are required'});
+            const response = responser(false,"All fields are required");
+            res.status(400).json(response);
             return;
         }else{
             try{
                 const hashedPassword = await bcrypt.hash(password,10);
                 const user = await userModel.find('username',username);
                 if(user !== null){
-                    res.status(400).json({message:'Username already exists'});
+                    const response = responser(false,"Username already exists");
+                    res.status(400).json(response);
                     return;
                 }
                     else{
@@ -149,59 +169,23 @@ export const register = async (req:Request, res:Response , ) =>{
                         status: 'active'
                     };
                     try{
+
                         const user = await userModel.create(userData);
-                        res.json(user);
+                        const response = responser(true,"Register success");
+                        res.json(response);
                     }
                     catch(e){
-                        res.json(e);
+                        const response = responser(false,"ERR : 002");
+                        res.json(response);
                     }
                 }
             }
             catch (e){
-                res.status(500).json({message:'ERR '});
+                const response = responser(false,"ERR : 002");
+                res.status(500).json(response);
                 return;
             }
         }
     }
 
-}
-
-export const authenticateToken  = ( req:Request, res:Response, next:NextFunction) =>{
-    const authHeader = req.headers['authorization'];
-    if(authHeader === undefined){
-        res.status(401).json({message:'Token not found'});
-        return;
-    }
-    const token = authHeader && authHeader.split(' ')[1];
-    if(token === null){
-        res.status(401).json({message:'Token not found'});
-        return;
-    }
-    else{
-        const secret = process.env.JWT_SECRET;
-        if(secret && token){
-            jwt.verify(token,secret,(err:any,user:any)=>{
-                if(err){
-                    res.status(403).json({message:'Token is invalid'});
-                    return;
-                }
-                req.body.user = user;
-                console.log(user)
-                next();
-            })
-        }
-    }
-
-}
-
-function generateAccessToken(username : string,type:string) {
-    const secret = process.env.JWT_SECRET;
-    const expiresIn = '1h';
-    const algorithm = 'HS256';
-    if(!secret){
-        return;
-    }
-    else{
-        return jwt.sign({username,type}, secret, { expiresIn ,algorithm});
-    }
 }

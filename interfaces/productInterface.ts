@@ -2,7 +2,7 @@ export interface ProductInterface{
     name:string;
     price?:number;
     description?:string;
-    img_id?:number | null;
+    img_id:number;
     count_rent?:number;
     created_at?:Date;
     created_by?:number;

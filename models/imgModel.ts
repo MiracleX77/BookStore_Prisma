@@ -2,8 +2,12 @@ import {PrismaClient,Img,ImgDetail} from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const create = async (img_path_s:string,img_path_m:string,img_path_l:string):Promise<Img> =>{
-    const img = await prisma.img.create({})
+export const create = async (img_path_s:string,img_path_m:string,img_path_l:string,type:string):Promise<Img> =>{
+    const img = await prisma.img.create({
+        data:{
+            img_type:type
+        }
+    })
     await prisma.$disconnect();
     const imgDetail = await prisma.imgDetail.create({
         data:{
@@ -16,7 +20,6 @@ export const create = async (img_path_s:string,img_path_m:string,img_path_l:stri
     await prisma.$disconnect();
     return img;
 }
-
 export const find = async (id:number) :Promise<ImgDetail | null> =>{
     const img_detail = await prisma.imgDetail.findFirst({
         where:{
