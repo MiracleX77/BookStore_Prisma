@@ -31,7 +31,8 @@ export interface TransactionResponseInterface {
     rental:{
         id?:number;
         date_rent?:Date;
-        date_receive?:Date | null;
+        date_admin_receive?:Date | null;
+        date_user_receive?:Date | null;
         date_return?:Date | null;
     }
     cost:number | null;
@@ -42,8 +43,14 @@ export interface TransactionResponseInterface {
 export interface RentalInterface {
     date_rent:Date;
     date_return:Date;
-    date_receive?:Date;
+    date_admin_receive?:Date;
+    date_user_receive?:Date;
     total_cost:number;
     status?:string;
 
+}
+export interface RentalUpdateInterface {
+    date_admin_receive?:Date;
+    date_user_receive?:Date;
+    status?:string;
 }

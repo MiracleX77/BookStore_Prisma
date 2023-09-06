@@ -9,7 +9,9 @@ export interface OrderInterface {
     status?:string;
     create_at?:Date;
 }
-
+export interface OrderUpdateInterface {
+    delivery_return_id?:number;
+}
 export interface OrderDetailInterface {
     id:string;  
     user_id:number;
@@ -39,8 +41,17 @@ export interface OrderDetailInterface {
         zip_code?:string;
         date_start?:Date | null;
         date_end?:Date | null;
+        delivery_type?:string;
         tracking_number?:string | null;
         status?:string;
+    }
+    delivery_return?:{
+        id?:number | null;
+        delivery_type?:string | null;
+        tracking_number?:string | null;
+        date_start?:Date | null;
+        date_end?:Date | null;
+        status?:string | null;
     }
     cost:number | null;
     type_delivery:string;
@@ -49,7 +60,7 @@ export interface OrderDetailInterface {
 }
 
 export interface DeliveryInterface {
-    address_id:number;
+    address_id?:number;
     date_start?:Date;
     date_end?:Date;
     delivery_type?:string;

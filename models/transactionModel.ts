@@ -30,7 +30,8 @@ export const find = async (id:number):Promise<TransactionResponseInterface|null>
                 select:{
                     id:true,
                     date_rent:true,
-                    date_receive:true,
+                    date_admin_receive:true,
+                    date_user_receive:true,
                     date_return:true,
                 }
             },
@@ -56,7 +57,8 @@ export const find = async (id:number):Promise<TransactionResponseInterface|null>
             rental:{
                 id:transaction.rental.id,
                 date_rent:transaction.rental.date_rent,
-                date_receive:transaction.rental.date_receive,
+                date_admin_receive:transaction.rental.date_admin_receive,
+                date_user_receive:transaction.rental.date_user_receive,
                 date_return:transaction.rental.date_return,
             },
             cost:transaction.cost,
@@ -87,7 +89,8 @@ export const findByUser = async (user_id:number):Promise<TransactionResponseInte
                 select:{
                     id:true,
                     date_rent:true,
-                    date_receive:true,
+                    date_admin_receive:true,
+                    date_user_receive:true,
                     date_return:true,
                 }
             },
@@ -114,7 +117,8 @@ export const findByUser = async (user_id:number):Promise<TransactionResponseInte
             rental:{
                 id:transaction.rental.id,
                 date_rent:transaction.rental.date_rent,
-                date_receive:transaction.rental.date_receive,
+                date_admin_receive:transaction.rental.date_admin_receive,
+                date_user_receive:transaction.rental.date_user_receive,
                 date_return:transaction.rental.date_return,
             },
             create_at:transaction.create_at,
@@ -144,7 +148,8 @@ export const findByOrder = async (order_id:string):Promise<TransactionResponseIn
                 select:{
                     id:true,
                     date_rent:true,
-                    date_receive:true,
+                    date_admin_receive:true,
+                    date_user_receive:true,
                     date_return:true,
                 }
             },
@@ -170,7 +175,8 @@ export const findByOrder = async (order_id:string):Promise<TransactionResponseIn
             rental:{
                 id:transaction.rental.id,
                 date_rent:transaction.rental.date_rent,
-                date_receive:transaction.rental.date_receive,
+                date_admin_receive:transaction.rental.date_admin_receive,
+                date_user_receive:transaction.rental.date_user_receive,
                 date_return:transaction.rental.date_return,
             },
             create_at:transaction.create_at,

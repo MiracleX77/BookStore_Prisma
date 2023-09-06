@@ -28,6 +28,8 @@ router.get("/getTransactionByUser/:user_id",transactionController.getTransaction
 router.get("/getTransactionByOrder/:order_id",transactionController.getTransactionByOrder)
 router.post("/checkOrderOut",orderController.checkOrderOut)
 router.post("/createOrder",upload.single('image'),orderController.createOrder)
+router.get("/receiveUserOrder/:id",orderController.receiveUserOrder)
+router.post("/returnOrder",orderController.returnOrder)
 
 
 

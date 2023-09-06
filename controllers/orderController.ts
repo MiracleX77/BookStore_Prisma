@@ -1,12 +1,14 @@
 import { responser } from '../services/responseService';
 import {Request,Response} from 'express';
-import {OrderInterface,PaymentInterface,DeliveryInterface,DeliveryUpdateInterface} from '../interfaces/orderInterface';
+import {OrderInterface,PaymentInterface,DeliveryInterface,DeliveryUpdateInterface,OrderUpdateInterface} from '../interfaces/orderInterface';
+import { RentalUpdateInterface } from 'interfaces/transactionInterface';
 import {generateCode} from '../services/codeService'
 import {uploadImage} from '../services/uploadImgService'
 import * as imageModel from '../models/imgModel';
 import * as deliveryModel from '../models/deliveryModel';
 import * as paymentModel from '../models/paymentModel';
 import * as addressModel from '../models/addressModel';
+import * as rentalModel from '../models/rentalModel';
 import * as orderModel from '../models/orderModel';
 import * as stockModel from '../models/stockModel';
 import * as transactionModel from '../models/transactionModel';
@@ -53,9 +55,8 @@ export const checkOrderOut = async (req:Request,res:Response) =>{
         return res.status(500).json(response);
     }
 }
-
 export const createOrder = async (req:Request,res:Response) =>{
-    const {user_id,list_transaction_id,type_delivery,type_payment,contact_name,contact_phone,email,address_id,total_cost} = req.body;
+    const {user_id,list_transaction_id,type_delivery,type_payment,contact_name,contact_phone,email,address_id,total_cost,shipping_company} = req.body;
     if(!user_id || !list_transaction_id || !type_delivery || !type_payment || !contact_name || !contact_phone || !email || !address_id){
         const response = responser(false,"All fields are required");
         return res.status(400).json(response);
@@ -99,7 +100,7 @@ export const createOrder = async (req:Request,res:Response) =>{
         }
         const deliveryData:DeliveryInterface = {
             address_id:parseInt(address_id),
-            delivery_type:type_delivery,
+            delivery_type:shipping_company,
         }
         if(type_delivery === 'delivery'){
             const delivery = await deliveryModel.create(deliveryData);
@@ -163,7 +164,6 @@ export const createOrder = async (req:Request,res:Response) =>{
     }
 
 }
-
 export const getAllOrder = async (req:Request,res:Response) =>{
     try{
         const orders = await orderModel.findAll();
@@ -427,3 +427,137 @@ export const confirmShipmentOrder = async (req:Request,res:Response) =>{
         return res.status(500).json(response);
     }
 }
+
+export const receiveUserOrder = async (req:Request,res:Response) =>{
+    const id = req.params.id;
+    if(!id){
+        const response = responser(false,"All fields are required");
+        return res.status(400).json(response);
+    }
+
+    try{
+        const order = await orderModel.find(id);
+        if(!order){
+            const response = responser(false,"Order not found");
+            return res.status(404).json(response);
+        }
+        if(order.status !== 'delivery'){
+            const response = responser(false,"Order not found");
+            return res.status(404).json(response);
+        }
+        const orderUpdate = await orderModel.updateStatus(id,"rental");
+        if(!orderUpdate){
+            const response = responser(false,"Order not found");
+            return res.status(404).json(response);
+        }
+        const list_transaction = await transactionModel.findByOrder(id);
+        for (let i = 0 ; i < list_transaction.length ; i++) {
+            const status = 'rental';
+
+            const transactionUpdate = await transactionModel.updateStatus(list_transaction[i].id,status);
+            if(!transactionUpdate){
+                const response = responser(false,"Transaction not found");
+                return res.status(404).json(response);
+            }
+            const rentalData:RentalUpdateInterface = {
+                date_user_receive:new Date(),
+                status:status
+            }
+            const rentalUpdate = await rentalModel.update(transactionUpdate.rental_id,rentalData);
+
+            const product_id = transactionUpdate.product_id;
+            const size = transactionUpdate.size;
+            const stock = await stockModel.findFilterOne(product_id,size,"delivery");
+            if(!stock){
+                const response = responser(false,"Stock not found");
+                return res.status(404).json(response);
+            }
+            const stockUpdate = await stockModel.updateStatus(stock.id,status);
+            if(!stockUpdate){
+                const response = responser(false,"Stock not found");
+                return res.status(404).json(response);
+            }
+        }
+        const delivery_id = order.delivery?.id;
+        if(delivery_id){
+            const dataDelivery:DeliveryUpdateInterface ={
+                status:"received",
+                date_end:new Date()
+            }
+            const deliveryUpdate = await deliveryModel.update(delivery_id,dataDelivery);
+        }
+        const response = responser(true,"Receive order success");
+        return res.json(response);
+    }
+    catch(e){
+        console.log(e);
+        const response = responser(false,"ERR : Receive order fail");
+        return res.status(500).json(response);
+    }
+}
+export const returnOrder = async (req:Request,res:Response) =>{
+    const {id,tracking_number,shipping_company} = req.body;
+    if(!id || !tracking_number){
+        const response = responser(false,"All fields are required");
+        return res.status(400).json(response);
+    }
+    try{
+        const list_transaction = await transactionModel.findByOrder(id);
+        if(!list_transaction){
+            const response = responser(false,"Transaction not found");
+            return res.status(404).json(response);
+        }
+        for (const transaction of list_transaction) {
+            const status = 'return';
+            const transactionUpdate = await transactionModel.updateStatus(transaction.id,status);
+            if(!transactionUpdate){
+                const response = responser(false,"Transaction not found");
+                return res.status(404).json(response);
+            }
+            const product_id = transactionUpdate.product_id;
+            const size = transactionUpdate.size;
+            const stock = await stockModel.findFilterOne(product_id,size,"rental");
+            if(!stock){
+                const response = responser(false,"Stock not found");
+                return res.status(404).json(response);
+            }
+            const stockUpdate = await stockModel.updateStatus(stock.id,status);
+            if(!stockUpdate){
+                const response = responser(false,"Stock not found");
+                return res.status(404).json(response);
+            }
+        }
+        const orderUpdate = await orderModel.updateStatus(id,"return");
+        if(!orderUpdate){
+            const response = responser(false,"Order not found");
+            return res.status(404).json(response);
+        }
+        const deliveryData:DeliveryInterface ={
+            delivery_type:shipping_company,
+            tracking_number:tracking_number,
+            date_start:new Date(),
+        }
+        const delivery = await deliveryModel.create(deliveryData);
+        if(!delivery){
+            const response = responser(false,"Delivery not found");
+            return res.status(404).json(response);
+        }
+        const orderData:OrderUpdateInterface = {
+            delivery_return_id:delivery.id,
+        }
+        const orderUpdateDelivery = await orderModel.update(id,orderData);
+        if(!orderUpdateDelivery){
+            const response = responser(false,"Order not found");
+            return res.status(404).json(response);
+        }
+        const response = responser(true,"Return order success");
+        return res.json(response);
+    }
+    catch(e){
+        console.log(e);
+        const response = responser(false,"ERR : Return order fail");
+        return res.status(500).json(response);
+    }
+
+}
+

@@ -1,5 +1,5 @@
 import {PrismaClient,Order} from '@prisma/client'
-import {OrderInterface,OrderDetailInterface} from '../interfaces/orderInterface'
+import {OrderInterface,OrderDetailInterface,OrderUpdateInterface} from '../interfaces/orderInterface'
 
 const prisma = new PrismaClient();
 
@@ -31,6 +31,15 @@ export const find = async (id:string):Promise<OrderDetailInterface|null> =>{
                 select:{
                     id:true,
                     address_id:true,
+                    date_start:true,
+                    date_end:true,
+                    tracking_number:true,
+                    status:true,
+                }
+            },
+            delivery_return:{
+                select:{
+                    id:true,
                     date_start:true,
                     date_end:true,
                     tracking_number:true,
@@ -73,33 +82,68 @@ export const find = async (id:string):Promise<OrderDetailInterface|null> =>{
         return orderDetail;
     }
     else{
-        const orderDetail:OrderDetailInterface = {
-            id:order.id,
-            user_id:order.user_id,
-            payment:{
-                type:order.payment.type,
-                img_url:order.payment.img_id.toString(),
-                contact_name:order.payment.contact_name,
-                contact_phone:order.payment.contact_phone,
-                email:order.payment.email,
-            },
-            delivery:{
-                id:order.delivery.id,
-                address_line:order.delivery.address_id.toString(),
-                date_start:order.delivery.date_start,
-                date_end:order.delivery.date_end,
-                tracking_number:order.delivery.tracking_number,
-                status:order.delivery.status,
-            },
-            type_delivery:order.type_delivery,
-            cost:order.total_cost,
-            status:order.status,
-            create_at:order.create_at,
+        if(order.delivery.address_id && order.delivery_return){
+            const orderDetail:OrderDetailInterface = {
+                id:order.id,
+                user_id:order.user_id,
+                payment:{
+                    type:order.payment.type,
+                    img_url:order.payment.img_id.toString(),
+                    contact_name:order.payment.contact_name,
+                    contact_phone:order.payment.contact_phone,
+                    email:order.payment.email,
+                },
+                delivery:{
+                    id:order.delivery.id,
+                    address_line:order.delivery.address_id.toString(),
+                    date_start:order.delivery.date_start,
+                    date_end:order.delivery.date_end,
+                    tracking_number:order.delivery.tracking_number,
+                    status:order.delivery.status,
+                },
+                delivery_return:{
+                    id:order.delivery_return.id,
+                    date_start:order.delivery_return.date_start,
+                    date_end:order.delivery_return.date_end,
+                    tracking_number:order.delivery_return.tracking_number,
+                    status:order.delivery_return.status,
+                },
+                type_delivery:order.type_delivery,
+                cost:order.total_cost,
+                status:order.status,
+                create_at:order.create_at,
+
+            }
+            return orderDetail;
         }
-        return orderDetail;
-    }
-    
-    
+        else if(order.delivery.address_id){
+            const orderDetail:OrderDetailInterface = {
+                id:order.id,
+                user_id:order.user_id,
+                payment:{
+                    type:order.payment.type,
+                    img_url:order.payment.img_id.toString(),
+                    contact_name:order.payment.contact_name,
+                    contact_phone:order.payment.contact_phone,
+                    email:order.payment.email,
+                },
+                delivery:{
+                    id:order.delivery.id,
+                    address_line:order.delivery.address_id.toString(),
+                    date_start:order.delivery.date_start,
+                    date_end:order.delivery.date_end,
+                    tracking_number:order.delivery.tracking_number,
+                    status:order.delivery.status,
+                },
+                type_delivery:order.type_delivery,
+                cost:order.total_cost,
+                status:order.status,
+                create_at:order.create_at,
+            }
+            return orderDetail;
+        }
+        return null;
+    } 
 }
 export const findMany = async (userId:number):Promise<Order[]> =>{
     const order = await prisma.order.findMany({
@@ -120,6 +164,16 @@ export const findAll = async ():Promise<Order[]> =>{
                 status:'remove'
             }
         }
+    })
+    await prisma.$disconnect();
+    return order;
+}
+export const update = async (id:string,data:OrderUpdateInterface):Promise<Order> =>{
+    const order = await prisma.order.update({
+        where:{
+            id:id
+        },
+        data
     })
     await prisma.$disconnect();
     return order;

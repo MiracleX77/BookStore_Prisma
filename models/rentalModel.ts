@@ -1,5 +1,5 @@
 import {PrismaClient,Rental} from '@prisma/client';
-import { RentalInterface } from 'interfaces/transactionInterface';
+import { RentalInterface ,RentalUpdateInterface} from 'interfaces/transactionInterface';
 
 const prisma = new PrismaClient();
 
@@ -18,6 +18,16 @@ export const find = async(id:number):Promise<Rental|null> =>{
                 status:'remove'
             }
         }
+    })
+    await prisma.$disconnect();
+    return rental;
+}
+export const update = async(id:number,data:RentalUpdateInterface):Promise<Rental> =>{
+    const rental = await prisma.rental.update({
+        where:{
+            id:id
+        },
+        data:data
     })
     await prisma.$disconnect();
     return rental;

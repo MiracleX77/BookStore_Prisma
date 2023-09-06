@@ -183,6 +183,7 @@ model Order {
   id String @id 
   user_id Int 
   delivery_id Int? @unique
+  delivery_return_id Int? @unique
   payment_id Int @unique
   type_delivery String @db.VarChar(45)
   total_cost Float?
@@ -193,13 +194,14 @@ model Order {
   //relation
   user User @relation("userOrder",fields:[user_id],references:[id])
   delivery Delivery? @relation("deliveryOrder",fields:[delivery_id],references:[id])
+  delivery_return Delivery? @relation("deliveryReturnOrder",fields:[delivery_return_id],references:[id])
   payment Payment @relation("paymentOrder",fields:[payment_id],references:[id])
   transaction Transaction[] @relation("orderTransaction")
 
 }
 model Delivery{
   id Int @id @default(autoincrement())
-  address_id Int
+  address_id Int?
   date_start DateTime @default(now()) @db.Timestamptz(3)
   date_end DateTime?
   delivery_type String? @db.VarChar(45)
@@ -207,8 +209,9 @@ model Delivery{
   status String @default("active") @db.VarChar(45)
   
   //relation
-  address Address @relation("deliveryAddress",fields:[address_id],references:[id])
+  address Address? @relation("deliveryAddress",fields:[address_id],references:[id])
   order Order? @relation("deliveryOrder")
+  order_return Order? @relation("deliveryReturnOrder")
 }
 model Payment{
   id Int @id @default(autoincrement())
@@ -237,6 +240,7 @@ model Transaction{
   img_after_id Int? @unique
   size String @db.VarChar(45)
   cost Float?
+  service_cost Float?
   create_at DateTime @default(now()) @db.Timestamptz(3)
   update_at DateTime? @updatedAt @db.Timestamptz(3)
   status String @default("active") @db.VarChar(45)
@@ -256,7 +260,8 @@ model Rental{
   id Int @id @default(autoincrement())
   date_rent DateTime @default(now())
   date_return DateTime?
-  date_receive DateTime?
+  date_user_receive DateTime?
+  date_admin_receive DateTime?
   total_cost Float?
   status String @default("active") @db.VarChar(45)
 
