@@ -19,6 +19,8 @@ router.get("/getOrder/:id",orderController.getOrder)
 router.get("/verifyPaymentOrder/:id",orderController.verifyPaymentOrder)
 router.get("/cancelPaymentOrder/:id",orderController.cancelPaymentOrder)
 router.post("/confirmShipmentOrder/:id",upload.array('image_before'),orderController.confirmShipmentOrder)
+router.get("/confirmReceiveOrder/:id",orderController.confirmReceiveOrder)
+router.post("/problemReceiveOrder/:id",upload.array('image_problem'),orderController.problemReceiveOrder)
 
 
 

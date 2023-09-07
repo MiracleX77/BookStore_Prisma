@@ -152,7 +152,7 @@ model Stock{
   id Int @id @default(autoincrement())
   product_id Int?
   size String @db.VarChar(45)
-  count_rent Int? @default(0)
+  count_rent Int @default(0)
   status String @default("active") @db.VarChar(45)
   //relation
   product Product? @relation(fields:[product_id],references:[id])

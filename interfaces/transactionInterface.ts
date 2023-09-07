@@ -9,7 +9,14 @@ export interface TransactionInterface {
     update_at?:Date;
     status?:string;
 }
-
+export interface TransactionUpdateInterface {
+    order_id?:string;
+    img_before_id?:number;
+    img_after_id?:number;
+    cost_damages?:number;
+    cost?:number;
+    status?:string;
+}
 export interface TransactionResponseInterface {
     id:number;
     order_id:string | null;

@@ -1,5 +1,5 @@
 import {PrismaClient,Transaction} from '@prisma/client';
-import{TransactionInterface,TransactionResponseInterface} from '../interfaces/transactionInterface';
+import{TransactionInterface,TransactionResponseInterface,TransactionUpdateInterface} from '../interfaces/transactionInterface';
 const prisma = new PrismaClient();
 
 export const create = async (data:TransactionInterface):Promise<Transaction> =>{
@@ -186,14 +186,17 @@ export const findByOrder = async (order_id:string):Promise<TransactionResponseIn
     }));
     return transactionResponse;
 }
-export const update = async (id:number,data:{status:string,order_id:string}):Promise<Transaction> =>{
+export const update = async (id:number,data:TransactionUpdateInterface):Promise<Transaction> =>{
     const transaction = await prisma.transaction.update({
         where:{
             id:id,
         },
         data:{
-            status:data.status,
             order_id:data.order_id,
+            img_after_id:data.img_after_id,
+            img_before_id:data.img_before_id,
+            service_cost:data.cost_damages,
+            cost:data.cost,
         }
     });
     await prisma.$disconnect();
