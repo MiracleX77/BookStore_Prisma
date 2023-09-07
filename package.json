@@ -1,12 +1,12 @@
 {
   "name": "bookstore",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "vercel-build": "prisma generate && npm start",
     "start": "nodemon index.ts",
-    "postinstall": "prisma generate",
-    "build": "prisma generate && <actual-build-command>"
+    "postinstall": "prisma generate"
   },
   "repository": {
     "type": "git",
@@ -31,7 +31,6 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.3",
     "@types/cors": "^2.8.13",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.17",
