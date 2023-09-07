@@ -137,6 +137,7 @@ export const register = async (req:Request, res:Response , ) =>{
                 }
             }
             catch (e){
+                console.log(e)
                 const response = responser(false,"ERR : 002");
                 res.status(500).json(response);
                 return;
@@ -181,6 +182,9 @@ export const register = async (req:Request, res:Response , ) =>{
                 }
             }
             catch (e){
+
+                console.log(e)
+
                 const response = responser(false,"ERR : 002");
                 res.status(500).json(response);
                 return;
