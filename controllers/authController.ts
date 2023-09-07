@@ -4,7 +4,7 @@ import { responser } from '../services/responseService';
 import {generateAccessToken} from '../services/authService';
 import * as userModel from '../models/userModel';
 import * as adminModel from '../models/adminModel';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 
 export const login = async (req:Request, res:Response) =>{
