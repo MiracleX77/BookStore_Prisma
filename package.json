@@ -4,9 +4,9 @@
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "vercel-build": "prisma generate && npm start",
+    "vercel-build": "prisma generate",
     "start": "nodemon index.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && npx prisma migrate deploy && npm start"
   },
   "repository": {
     "type": "git",
