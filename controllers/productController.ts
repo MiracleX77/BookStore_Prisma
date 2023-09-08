@@ -153,45 +153,44 @@ export const createProduct = async (req:Request,res:Response)=>{
     const imageName = name.replace(/\s/g,'-') + '-' + Date.now() + '.jpg';
     const imageBuffer = req.file.buffer;
     const pathImage =await uploadImage(imageBuffer,imageName);
-    return res.json(pathImage);
-    // try{
+    try{
 
-    //     const img = await imgModel.create(pathImage.smallImagePath,pathImage.mediumImagePath,pathImage.largeImagePath,"product");
+        const img = await imgModel.create(pathImage.smallImagePath,pathImage.mediumImagePath,pathImage.largeImagePath,"product");
         
-    //     const productData: ProductInterface = {
-    //             name: name,
-    //             description: description,
-    //             img_id: img.id,
-    //             created_by: parseInt(created_by),
-    //         }
+        const productData: ProductInterface = {
+                name: name,
+                description: description,
+                img_id: img.id,
+                created_by: parseInt(created_by),
+            }
 
-    //     const product = await productModel.create(productData);
+        const product = await productModel.create(productData);
 
-    //     const cost_rent = await costRentModel.create(parseFloat(price_base),parseInt(price_per_day),product.id);
+        const cost_rent = await costRentModel.create(parseFloat(price_base),parseInt(price_per_day),product.id);
         
-    //     const sizeStock:string[][] = size;
-    //     const stockData=[];
+        const sizeStock:string[][] = size;
+        const stockData=[];
 
-    //     for(let i=0;i<sizeStock[0].length;i++){
-    //         for(let j=0;j<parseInt(sizeStock[1][i]);j++){
-    //             const data_stock = {
-    //                 product_id:product.id,
-    //                 size:sizeStock[0][i]
-    //             };
-    //             stockData.push(data_stock);
-    //         }
-    //     }
-    //     const stock = await stockModel.create(stockData);
+        for(let i=0;i<sizeStock[0].length;i++){
+            for(let j=0;j<parseInt(sizeStock[1][i]);j++){
+                const data_stock = {
+                    product_id:product.id,
+                    size:sizeStock[0][i]
+                };
+                stockData.push(data_stock);
+            }
+        }
+        const stock = await stockModel.create(stockData);
 
-    //     const response = responser(true,"Create product success",product);
-    //     res.json(response);    
-    // }
-    // catch(e){
-    //     console.log(e);
-    //     const response = responser(false,"ERR : 002");
-    //     res.status(500).json(response);
-    //     return;
-    // }
+        const response = responser(true,"Create product success",product);
+        res.json(response);    
+    }
+    catch(e){
+        console.log(e);
+        const response = responser(false,"ERR : 002");
+        res.status(500).json(response);
+        return;
+    }
 
 
 }
