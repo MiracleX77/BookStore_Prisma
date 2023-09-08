@@ -20,9 +20,6 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors());
 app.use(morgan('dev'));
-app.get("/",(req,res)=>{
-    res.send('thissssssssssssss')
-})
 app.use('/api/auth',authRoute);
 app.use('/api/user',userRoute);
 app.use('/api/admin',adminRoute);
