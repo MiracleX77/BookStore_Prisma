@@ -22,7 +22,7 @@ export const authenticateToken  = ( req:Request, res:Response, next:NextFunction
                     return;
                 }
                 req.body.user = user;
-                console.log(user)
+
                 next();
             })
         }

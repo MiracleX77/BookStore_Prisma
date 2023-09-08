@@ -2,6 +2,7 @@ import * as userController from '../controllers/userController';
 import * as addressController from '../controllers/addressController';
 import * as transactionController from '../controllers/transactionController';
 import * as orderController from '../controllers/orderController';
+import * as productController from '../controllers/productController';
 import express,{Router} from 'express';
 import {authenticateToken} from '../services/authService';
 import multer from 'multer';
@@ -9,6 +10,9 @@ import multer from 'multer';
 const upload = multer();
 
 const router : Router = express.Router();
+
+router.get("/getProduct/:id",productController.getProduct)
+router.get("/getAllProduct",productController.getAllProduct)
 //address route
 router.get("/getAddress/:id",authenticateToken,addressController.getAddress)
 router.get("/getAllAddress/:user_id",authenticateToken,addressController.getAllAddress)
@@ -22,14 +26,14 @@ router.get("/removeUser/:id",authenticateToken,userController.removeUser)
 router.put("/updateUser/:id",authenticateToken,userController.updateUser)
 
 //order route
-router.post("/insertTransaction",transactionController.createTransaction)
-router.get("/getTransaction/:id",transactionController.getTransaction)
-router.get("/getTransactionByUser/:user_id",transactionController.getTransactionByUser)
-router.get("/getTransactionByOrder/:order_id",transactionController.getTransactionByOrder)
-router.post("/checkOrderOut",orderController.checkOrderOut)
-router.post("/createOrder",upload.single('image'),orderController.createOrder)
-router.get("/receiveUserOrder/:id",orderController.receiveUserOrder)
-router.post("/returnOrder",orderController.returnOrder)
+router.post("/insertTransaction",authenticateToken,transactionController.createTransaction)
+router.get("/getTransaction/:id",authenticateToken,transactionController.getTransaction)
+router.get("/getTransactionByUser/:user_id",authenticateToken,transactionController.getTransactionByUser)
+router.get("/getTransactionByOrder/:order_id",authenticateToken,transactionController.getTransactionByOrder)
+router.post("/checkOrderOut",authenticateToken,orderController.checkOrderOut)
+router.post("/createOrder",authenticateToken,upload.single('image'),orderController.createOrder)
+router.get("/receiveUserOrder/:id",authenticateToken,orderController.receiveUserOrder)
+router.post("/returnOrder",authenticateToken,orderController.returnOrder)
 
 
 
