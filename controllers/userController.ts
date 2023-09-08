@@ -1,7 +1,11 @@
 import {Request,Response} from 'express';
-import {UserInsertInterface,UserUpdateInterface} from '../interfaces/userInterface';
+import {UserInsertInterface,UserUpdateInterface,AdminInsertInterface} from '../interfaces/userInterface';
 import { responser } from '../services/responseService';
 import * as userModel  from '../models/userModel';
+import * as adminModel from '../models/adminModel';
+import {AddressInterface} from '../interfaces/addressInterface';
+import * as addressModel from '../models/addressModel';
+import bcrypt from 'bcryptjs';
 
 
 
@@ -84,5 +88,69 @@ export const removeUser = async (req:Request,res:Response) =>{
             return res.status(500).json(response);
         }
     }
+}
+
+//Admin
+export const createAdmin = async (req:Request,res:Response) =>{
+    const {username,password,name,surname,phone,email,address_line,sub_district_id,district_id,province_id,role,id_card} = req.body;
+    if(!username || !password || !name ||!surname || !phone || !email || !address_line || !role || !id_card || !sub_district_id || !district_id || !province_id){
+        const response = responser(false,"All fields are required");
+        res.status(400).json(response);
+        return;
+    }
+        try{
+            const hashedPassword = await bcrypt.hash(password,10);
+            const admin = await adminModel.find('username',username);
+            if(admin !== null){
+                const response = responser(false,"Username already exists");
+                res.status(400).json(response);
+                return;
+            }
+            const user = await userModel.find('username',username);
+            if(user !== null){
+                const response = responser(false,"Username already exists");
+                res.status(400).json(response);
+                return;
+            }
+                else{
+                const hashedPassword = await bcrypt.hash(password,10);
+
+                try{
+                    const adminData:AdminInsertInterface = {
+                        username,
+                        password:hashedPassword,
+                        name,
+                        surname,
+                        phone,
+                        email,
+                        role,
+                        id_card
+                    };
+                    const user = await adminModel.create(adminData);
+                    const addressData:AddressInterface = {
+                        user_id:user.id,
+                        address_line,
+                        sub_district_id,
+                        district_id,
+                        province_id
+                    }
+                    const address = await addressModel.create(addressData);
+
+                    const response = responser(true,"Register success");
+                    res.json(response);
+                }
+                catch(e){
+                    const response = responser(false,"ERR : 002");
+                    res.json(response);
+                }
+            }
+        }
+        catch (e){
+            console.log(e)
+            const response = responser(false,"ERR : 002");
+            res.status(500).json(response);
+            return;
+        }
+    
 }
 

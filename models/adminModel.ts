@@ -5,7 +5,17 @@ import {AdminInsertInterface,AdminUpdateInterface} from '../interfaces/adminInte
 const prisma = new PrismaClient();
 
 export const create = async(data:AdminInsertInterface):Promise<Admin> =>{
-    const admin = await prisma.admin.create({data});
+    const admin = await prisma.admin.create({
+        data:{
+            username:data.username,
+            password:data.password,
+            name:data.name,
+            surname:data.surname,
+            phone:data.phone,
+            email:data.email,
+            role:data.role,
+            id_card:data.id_card
+        }});
     await prisma.$disconnect();
 
     return admin;

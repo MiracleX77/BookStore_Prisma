@@ -133,7 +133,7 @@ export const getProduct = async (req:Request,res:Response)=>{
 
 export const createProduct = async (req:Request,res:Response)=>{
     const {name,price_base,price_per_day,description,size,created_by} = req.body;
-    if(!name || !price_base || !price_per_day  ){
+    if(!name || !price_base || !price_per_day  || !created_by){
         const response = responser(false,"Please enter all fields");
         res.status(400).json(response);
         return;

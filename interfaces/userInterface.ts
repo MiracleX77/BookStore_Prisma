@@ -28,7 +28,6 @@ export interface AdminInsertInterface {
     surname:string;
     phone:string;
     email:string;
-    address:string;
     role:string;
     id_card:string;
 }

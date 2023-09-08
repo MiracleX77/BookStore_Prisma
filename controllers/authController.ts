@@ -1,9 +1,11 @@
 import {Request,Response,NextFunction} from 'express';
 import {UserInsertInterface,AdminInsertInterface} from '../interfaces/userInterface';
+import {AddressInterface} from '../interfaces/addressInterface';
 import { responser } from '../services/responseService';
 import {generateAccessToken} from '../services/authService';
 import * as userModel from '../models/userModel';
 import * as adminModel from '../models/adminModel';
+import * as addressModel from '../models/addressModel';
 import bcrypt from 'bcryptjs';
 
 
@@ -81,70 +83,7 @@ export const login = async (req:Request, res:Response) =>{
 }
 
 export const register = async (req:Request, res:Response , ) =>{
-    const {username,password,name,surname,phone,email,address,role,id_card,type} = req.body;
-    if(!type){
-        const response = responser(false,"All fields are required");
-        res.status(400).json(response);
-        return;
-    }
-    if(type !== 'admin' && type !== 'user'){
-        const response = responser(false,"All fields are required");
-        res.status(400).json(response);
-        return;
-    }
-    if(type === 'admin'){
-        if(!username || !password || !name ||!surname || !phone || !email || !address || !role || !id_card){
-            const response = responser(false,"All fields are required");
-            res.status(400).json(response);
-            return;
-        }else{
-            try{
-                const hashedPassword = await bcrypt.hash(password,10);
-                const admin = await adminModel.find('username',username);
-                if(admin !== null){
-                    const response = responser(false,"Username already exists");
-                    res.status(400).json(response);
-                    return;
-                }
-                const user = await userModel.find('username',username);
-                if(user !== null){
-                    const response = responser(false,"Username already exists");
-                    res.status(400).json(response);
-                    return;
-                }
-                    else{
-                    const hashedPassword = await bcrypt.hash(password,10);
-                    const adminData:AdminInsertInterface = {
-                        username,
-                        password:hashedPassword,
-                        name,
-                        surname,
-                        phone,
-                        email,
-                        address,
-                        role,
-                        id_card
-                    };
-                    try{
-                        const user = await adminModel.create(adminData);
-                        const response = responser(true,"Register success");
-                        res.json(response);
-                    }
-                    catch(e){
-                        const response = responser(false,"ERR : 002");
-                        res.json(response);
-                    }
-                }
-            }
-            catch (e){
-                console.log(e)
-                const response = responser(false,"ERR : 002");
-                res.status(500).json(response);
-                return;
-            }
-        }
-    }
-    if(type === 'user'){
+    const {username,password,name,surname,phone,email} = req.body;
         if(!username || !password || !name || !surname || !phone || !email ){
             const response = responser(false,"All fields are required");
             res.status(400).json(response);
@@ -192,4 +131,4 @@ export const register = async (req:Request, res:Response , ) =>{
         }
     }
 
-}
+
