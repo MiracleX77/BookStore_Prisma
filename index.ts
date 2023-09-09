@@ -6,7 +6,6 @@ import authRoute from './routes/authRoute'
 import userRoute from './routes/userRoute'
 import adminRoute from './routes/adminRoute'
 import baseRoute from './routes/baseRoute'
-import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 
 
@@ -29,9 +28,7 @@ app.use('/api',baseRoute);
 
 
 
-const swaggerDocs = YAML.load('./swagger.yaml');
 
-app.use('/api-docs',swaggerUi.serve,swaggerUi.setup(swaggerDocs));
 
 const port = process.env.PORT;
 app.listen(port,()=>console.log(`Server is running on port ${port}`));
