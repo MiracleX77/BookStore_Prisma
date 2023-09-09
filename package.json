@@ -50,8 +50,6 @@
     "@types/yamljs": "^0.2.31",
     "nodemon": "^3.0.1",
     "ts-loader": "^9.4.4",
-    "ts-node": "^10.9.1",
-    "ts-node-dev": "^2.0.0",
     "typescript": "^5.2.2",
     "webpack-cli": "^5.1.4",
     "yamljs": "^0.3.0"
