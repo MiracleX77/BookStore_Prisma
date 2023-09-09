@@ -1,5 +1,5 @@
 import {PrismaClient,Address} from '@prisma/client';
-import {AddressInterface,AddressResponseInterface} from '../interfaces/addressInterface';
+import {AddressInterface,AddressResponseInterface,AddressUpdateInterface} from '../interfaces/addressInterface';
 
 const prisma = new PrismaClient();
 
@@ -130,7 +130,7 @@ export const find = async(id:number):Promise<AddressResponseInterface | null> =>
     return addressResponse;
 }
 
-export const update = async(id:number,data:AddressInterface):Promise<Address> =>{
+export const update = async(id:number,data:AddressUpdateInterface):Promise<Address> =>{
     const address = await prisma.address.update({
         where:{
             id:id

@@ -18,8 +18,8 @@ export const find = async(columnName: string,value:string):Promise<User | null> 
                 NOT:{
                     status: 'remove'
                 }
-            }
-            
+
+            },
         });
         await prisma.$disconnect();
         return user;

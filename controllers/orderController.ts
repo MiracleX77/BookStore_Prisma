@@ -77,7 +77,7 @@ export const createOrder = async (req:Request,res:Response) =>{
     const pathImage =await uploadImage(imageBuffer,imageName);
 
     try{
-        const count = await orderModel.countByUserId(user_id);
+        const count = await orderModel.countByUserId(parseInt(user_id));
         const code = generateCode(user_id,count);
 
         const image = await imageModel.create(pathImage.smallImagePath,pathImage.mediumImagePath,pathImage.largeImagePath,"payment");
@@ -167,7 +167,30 @@ export const createOrder = async (req:Request,res:Response) =>{
 export const getAllOrder = async (req:Request,res:Response) =>{
     try{
         const orders = await orderModel.findAll();
-        const response = responser(true,"Get all order success",orders);
+        if(!orders){
+            const response = responser(false,"Order not found");
+            return res.status(404).json(response);
+        }
+        const orderResponse:OrderInterface[] = [];
+        for (const order of orders) {
+            const orderDetail:OrderInterface = {
+                id:order.id,
+                user_id:order.user_id,
+                delivery_id:order.delivery_id,
+                payment_id:order.payment_id,
+                type_delivery:order.type_delivery,
+                total_cost:order.total_cost,
+                status:order.status,
+                create_at:order.create_at,
+            }
+            orderDetail.create_at?.setHours(orderDetail.create_at.getHours() + 7);
+
+            orderResponse.push(orderDetail);
+        }
+
+
+
+        const response = responser(true,"Get all order success",orderResponse);
         return res.json(response);
     }
     catch(e){
@@ -213,8 +236,11 @@ export const getOrder = async (req:Request,res:Response) =>{
                 name_en:address.province.name_en
             }
             order.delivery.zip_code = address.zip_code;
+            order.delivery.date_start?.setHours(order.delivery.date_start.getHours() + 7);
+            order.delivery.date_end?.setHours(order.delivery.date_end.getHours() + 7);
         }
         order.create_at?.setHours(order.create_at.getHours() + 7);
+
 
 
         const response = responser(true,"Get order success",order);
@@ -330,7 +356,7 @@ export const cancelPaymentOrder = async (req:Request,res:Response) =>{
 }
 export const confirmShipmentOrder = async (req:Request,res:Response) =>{
     const id = req.params.id;
-    const {tracking_number,list_id_transaction} = req.body;
+    const {tracking_number,list_id_transaction,shipping_company} = req.body;
     if(!id){
         const response = responser(false,"All fields are required");
         return res.status(400).json(response);
@@ -413,6 +439,7 @@ export const confirmShipmentOrder = async (req:Request,res:Response) =>{
 
                 const dataDelivery:DeliveryUpdateInterface ={
                     status:"delivery",
+                    delivery_type:shipping_company,
                     tracking_number:tracking_number,
                     date_start:new Date()
                 }
@@ -496,7 +523,8 @@ export const receiveUserOrder = async (req:Request,res:Response) =>{
     }
 }
 export const returnOrder = async (req:Request,res:Response) =>{
-    const {id,tracking_number,shipping_company} = req.body;
+    const id = req.params.id;
+    const {tracking_number,shipping_company} = req.body;
     if(!id || !tracking_number){
         const response = responser(false,"All fields are required");
         return res.status(400).json(response);
@@ -678,7 +706,6 @@ export const problemReceiveOrder = async (req:Request,res:Response) =>{
             return res.status(404).json(response);
         }
         for (let i = 0 ; i < list_id_problem_transaction.length ; i++) {
-            console.log(list_id_problem_transaction[i]);
             const status = 'damaged';
             const transactionUpdate = await transactionModel.updateStatus(parseInt(list_id_problem_transaction[i]),status);
             if(!transactionUpdate){

@@ -8,6 +8,12 @@ export interface AddressInterface {
     updatedAt?:Date;
     status?:string;
 }
+export interface AddressUpdateInterface {
+    address_line?:string;
+    sub_district_id?:number;
+    district_id?:number;
+    province_id?:number;
+}
 
 export interface AddressResponseInterface {
     id:number;
@@ -25,6 +31,6 @@ export interface AddressResponseInterface {
         name_th:string;
         name_en:string;
     }
-    createdAt?:Date;
+    createdAt:Date;
     zip_code?:string;
 }

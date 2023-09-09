@@ -34,7 +34,7 @@ export const createTransaction = async (req:Request,res:Response) =>{
         }
         const transaction = await transactionModel.create(dataTransaction);
 
-        const response = responser(true,"Create transaction success",{transaction_id:transaction.id});
+        const response = responser(true,"Create transaction success");
         return res.json(response);
     }
     catch(e){

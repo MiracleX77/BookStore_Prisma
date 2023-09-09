@@ -182,7 +182,7 @@ export const createProduct = async (req:Request,res:Response)=>{
         }
         const stock = await stockModel.create(stockData);
 
-        const response = responser(true,"Create product success",product);
+        const response = responser(true,"Create product success");
         res.json(response);    
     }
     catch(e){
@@ -290,7 +290,7 @@ export const updateProduct = async (req:Request,res:Response)=>{
         console.log(productUpdate);
         console.log(cost_rentUpdate);
         
-        const response =    responser(true,"Update product success",productUpdate);
+        const response =    responser(true,"Update product success");
         res.json(response);
     }
     catch(e){
@@ -315,7 +315,7 @@ export const removeProduct = async (req:Request,res:Response)=>{
 
         const productRemove = await productModel.remove(id);
         
-        const response = responser(true,"Remove product success",productRemove);
+        const response = responser(true,"Remove product success");
         res.json(response);
     }
     catch(e){

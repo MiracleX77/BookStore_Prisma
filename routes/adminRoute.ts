@@ -17,13 +17,14 @@ router.get("/removeProduct/:id",authenticateToken,productController.removeProduc
 
 //order route
 router.get("/getAllOrder",authenticateToken,orderController.getAllOrder)
-router.get("/getOrder/:id",authenticateToken,orderController.getOrder)
-router.get("/verifyPaymentOrder/:id",authenticateToken,orderController.verifyPaymentOrder)
-router.get("/cancelPaymentOrder/:id",authenticateToken,orderController.cancelPaymentOrder)
+router.put("/verifyPaymentOrder/:id",authenticateToken,orderController.verifyPaymentOrder)
+router.put("/cancelPaymentOrder/:id",authenticateToken,orderController.cancelPaymentOrder)
 router.post("/confirmShipmentOrder/:id",authenticateToken,upload.array('image_before'),orderController.confirmShipmentOrder)
-router.get("/confirmReceiveOrder/:id",authenticateToken,orderController.confirmReceiveOrder)
+router.put("/confirmReceiveOrder/:id",authenticateToken,orderController.confirmReceiveOrder)
 router.post("/problemReceiveOrder/:id",authenticateToken,upload.array('image_problem'),orderController.problemReceiveOrder)
 
+//user route
+router.get("/getAllUser",authenticateToken,userController.getAllUser)
 
 
 

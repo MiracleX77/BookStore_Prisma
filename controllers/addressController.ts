@@ -1,5 +1,5 @@
 import {Request,Response} from 'express';
-import {AddressInterface} from '../interfaces/addressInterface';
+import {AddressInterface,AddressUpdateInterface} from '../interfaces/addressInterface';
 import { responser } from '../services/responseService';
 import * as addressModel from '../models/addressModel';
 
@@ -16,6 +16,9 @@ export const getAllAddress = async (req:Request,res:Response) =>{
         try{
             const address = await addressModel.findMany(user_id);
 
+            address.forEach((element) => {
+                element.createdAt.setHours(element.createdAt.getHours() + 7);
+            });
             const response = responser(true,"Get address success",address);
             return res.json(response)
         }
@@ -34,7 +37,11 @@ export const getAddress = async (req:Request,res:Response) =>{
     else{
         try{
             const address = await addressModel.find(id);
-            
+            if(!address){
+                const response = responser(false,"Address not found");
+                return res.status(404).json(response);
+            }
+            address.createdAt.setHours(address.createdAt.getHours() + 7);
             const response = responser(true,"Get address success",address);
             return res.json(response)
         }
@@ -74,13 +81,12 @@ export const insertAddress = async (req:Request,res:Response) =>{
 }
 export const updateAddress = async (req:Request,res:Response) =>{
     const id = Number(req.params.id);
-    const {user_id,address_line,sub_district_id,district_id,province_id} = req.body;
+    const {address_line,sub_district_id,district_id,province_id} = req.body;
     if(!sub_district_id || !district_id || !province_id){
         return res.status(400).json({msg:'Please enter all fields'});
     }
     else{
-        const addressData:AddressInterface = {
-            user_id:user_id,
+        const addressData:AddressUpdateInterface = {
             address_line:address_line,
             sub_district_id:sub_district_id,
             district_id:district_id,

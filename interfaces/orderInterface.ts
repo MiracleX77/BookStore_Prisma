@@ -2,10 +2,10 @@
 export interface OrderInterface {
     id:string;
     user_id:number;
-    delivery_id?:number;
+    delivery_id?:number | null;
     payment_id:number;
     type_delivery:string;
-    total_cost:number;
+    total_cost:number | null;
     status?:string;
     create_at?:Date;
 }
@@ -69,6 +69,7 @@ export interface DeliveryInterface {
 }
 export interface DeliveryUpdateInterface {
     tracking_number?:string;
+    delivery_type?:string;
     status?:string;
     date_start?:Date;
     date_end?:Date;

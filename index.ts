@@ -1,11 +1,13 @@
 import type {Request,Response,Application} from 'express';
 import express from 'express';
-//import {PrismaClient,Prisma} from '@prisma/client';
 import cors from 'cors';
 import morgan from 'morgan';
 import authRoute from './routes/authRoute'
 import userRoute from './routes/userRoute'
 import adminRoute from './routes/adminRoute'
+import baseRoute from './routes/baseRoute'
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
 
 
@@ -23,9 +25,13 @@ app.use(morgan('dev'));
 app.use('/api/auth',authRoute);
 app.use('/api/user',userRoute);
 app.use('/api/admin',adminRoute);
+app.use('/api',baseRoute);
 
 
 
+const swaggerDocs = YAML.load('./swagger.yaml');
+
+app.use('/api-docs',swaggerUi.serve,swaggerUi.setup(swaggerDocs));
 
 const port = process.env.PORT;
 app.listen(port,()=>console.log(`Server is running on port ${port}`));

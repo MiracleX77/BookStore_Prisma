@@ -1,3 +1,4 @@
+
 export interface UserInsertInterface {
     username:string;
     password:string;
@@ -21,6 +22,19 @@ export interface UserUpdateInterface {
     update_by?:number;
     status?:string;
 }
+export interface UserResponseInterface {
+    id:number;
+    username:string;
+    name:string | null;
+    surname:string | null;
+    phone:string | null;
+    email:string | null;
+    createdAt?:Date;
+    update_by?:number | null;
+    updatedAt?:Date;
+    status?:string;
+}
+    
 export interface AdminInsertInterface {
     username:string;
     password:string;

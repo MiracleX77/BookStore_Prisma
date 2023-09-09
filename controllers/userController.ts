@@ -1,11 +1,12 @@
 import {Request,Response} from 'express';
-import {UserInsertInterface,UserUpdateInterface,AdminInsertInterface} from '../interfaces/userInterface';
+import {UserInsertInterface,UserResponseInterface,UserUpdateInterface,AdminInsertInterface} from '../interfaces/userInterface';
 import { responser } from '../services/responseService';
 import * as userModel  from '../models/userModel';
 import * as adminModel from '../models/adminModel';
 import {AddressInterface} from '../interfaces/addressInterface';
 import * as addressModel from '../models/addressModel';
 import bcrypt from 'bcryptjs';
+import { create } from 'domain';
 
 
 
@@ -20,7 +21,25 @@ export const getUser = async (req:Request,res:Response) =>{
     else{
         try{
             const user = await userModel.findByID(id);
-            const response = responser(true,"Get user success",user);
+            if(user === null){
+                const response = responser(false,"User not found");
+                return res.status(400).json(response);
+            }
+            user.create_at.setHours(user.create_at.getHours() + 7);
+            user.update_at.setHours(user.update_at.getHours() + 7);
+            const userResponse:UserResponseInterface = {
+                id:user.id,
+                username:user.username,
+                name:user.name,
+                surname:user.surname,
+                phone:user.phone,
+                email:user.email,
+                createdAt:user.create_at,
+                updatedAt:user.update_at,
+                update_by:user.update_by,
+                status:user.status
+            }
+            const response = responser(true,"Get user success",userResponse);
             return res.json(response);
         }
         catch(e){
@@ -33,7 +52,31 @@ export const getUser = async (req:Request,res:Response) =>{
 export const getAllUser = async (req:Request,res:Response) =>{
     try{
         const user = await userModel.findAll();
-        const response = responser(true,"Get user success",user);
+        if(user === null){
+            const response = responser(false,"User not found");
+            return res.status(400).json(response);
+        }
+        const userResponse:UserResponseInterface[] = [];
+        user.forEach((element) => {
+            element.create_at.setHours(element.create_at.getHours() + 7);
+            element.update_at.setHours(element.update_at.getHours() + 7);
+            const userResponseData:UserResponseInterface = {
+                id:element.id,
+                username:element.username,
+                name:element.name,
+                surname:element.surname,
+                phone:element.phone,
+                email:element.email,
+                createdAt:element.create_at,
+                updatedAt:element.update_at,
+                update_by:element.update_by,
+                status:element.status
+            }
+            userResponse.push(userResponseData);
+        });
+
+
+        const response = responser(true,"Get user success",userResponse);
         return res.json(response);
     }
     catch(e){
@@ -59,7 +102,7 @@ export const updateUser = async (req:Request,res:Response) =>{
                 update_by:update_by
             }
             const user = await userModel.update(id,userData);
-            const response = responser(true,"Update user success",user);
+            const response = responser(true,"Update user success");
             return res.json(response);
         }
         catch(e){
@@ -79,7 +122,7 @@ export const removeUser = async (req:Request,res:Response) =>{
         try{
 
             const user = await userModel.remove(id);
-            const response = responser(true,"Remove user success",user);
+            const response = responser(true,"Remove user success");
             return res.json(response);
         }
         catch(e){
