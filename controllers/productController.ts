@@ -2,7 +2,6 @@ import { Request, Response} from 'express';
 import {ProductInterface,ResponseProductInterface} from '../interfaces/productInterface';
 import { responser } from '../services/responseService';
 import {uploadImage} from '../services/uploadImgService';
-import stream from 'stream'
 
 import * as costRentModel from '../models/costRentModel';
 import * as productModel from '../models/productModel';

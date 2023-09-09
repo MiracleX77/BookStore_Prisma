@@ -1,11 +1,9 @@
 import {Request,Response,NextFunction} from 'express';
 import {UserInsertInterface,AdminInsertInterface} from '../interfaces/userInterface';
-import {AddressInterface} from '../interfaces/addressInterface';
 import { responser } from '../services/responseService';
 import {generateAccessToken} from '../services/authService';
 import * as userModel from '../models/userModel';
 import * as adminModel from '../models/adminModel';
-import * as addressModel from '../models/addressModel';
 import bcrypt from 'bcryptjs';
 
 
