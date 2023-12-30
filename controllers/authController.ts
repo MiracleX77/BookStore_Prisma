@@ -5,6 +5,7 @@ import {generateAccessToken} from '../services/authService';
 import * as userModel from '../models/userModel';
 import * as adminModel from '../models/adminModel';
 import bcrypt from 'bcryptjs';
+import {Path,GET,POST,PathParam,QueryParam} from "typescript-rest";
 
 
 export const login = async (req:Request, res:Response) =>{

@@ -45,8 +45,8 @@ model Admin {
   
   //relation
   updater User[] @relation("userUpdater")
-  creator Product[] @relation("productCreator")
-  productUpdater Product[] @relation("productUpdater")
+  creator Book[] @relation("bookCreator")
+  bookUpdater Book[] @relation("bookUpdater")
 
 }
 
@@ -116,9 +116,10 @@ model SubDistrict{
 
 }
 
-model Product{
+model Book{
   id Int @id @default(autoincrement())
   name String @db.VarChar(100)
+  name_author String @db.VarChar(100)
   price Float? 
   description String? @db.VarChar(500)
   count_rent Int? @default(0)
@@ -128,19 +129,22 @@ model Product{
   update_by Int?
   status String @default("active") @db.VarChar(45)
   img_id Int @unique
+  publisher_id Int?
 
   //relation
-  img Img? @relation("productImg",fields:[img_id],references:[id])
-  updater Admin? @relation("productUpdater",fields: [update_by], references: [id])
-  creator Admin? @relation("productCreator",fields: [create_by], references: [id])
-  transaction Transaction[] @relation("productTransaction")
+  img Img? @relation("bookImg",fields:[img_id],references:[id])
+  publisher Publisher? @relation("bookPublisher",fields:[publisher_id],references:[id])
+  updater Admin? @relation("bookUpdater",fields: [update_by], references: [id])
+  creator Admin? @relation("bookCreator",fields: [create_by], references: [id])
+  transaction Transaction[] @relation("bookTransaction")
+  bookCategory BookCategory[] 
 
   costRent CostRent[]
   stock Stock[]
 }
 model CostRent{
   id Int @id @default(autoincrement())
-  product_id Int?
+  book_id Int?
   cost_base Float?
   cost_per_day Int?
   create_at DateTime @default(now()) @db.Timestamptz(3)
@@ -148,23 +152,23 @@ model CostRent{
   status String @default("active") @db.VarChar(45)
 
   //relation
-  product Product? @relation(fields:[product_id],references:[id])
+  book Book? @relation(fields:[book_id],references:[id])
 }
 model Stock{
   id Int @id @default(autoincrement())
-  product_id Int?
+  book_id Int?
   size String @db.VarChar(45)
   count_rent Int @default(0)
   status String @default("active") @db.VarChar(45)
   //relation
-  product Product? @relation(fields:[product_id],references:[id])
+  book Book? @relation(fields:[book_id],references:[id])
 }
 model Img {
   id Int @id @default(autoincrement())
   img_type String? @db.VarChar(45)
 
   //relation
-  product Product? @relation("productImg")
+  book Book? @relation("bookImg")
   imgDetail ImgDetail[]
   paymemt Payment? @relation("paymentImg")
   transactionbe Transaction? @relation("transactionbeImg")
@@ -185,6 +189,7 @@ model Order {
   id String @id 
   user_id Int 
   delivery_id Int? @unique
+  type String @db.VarChar(45)
   delivery_return_id Int? @unique
   payment_id Int @unique
   type_delivery String @db.VarChar(45)
@@ -236,7 +241,7 @@ model Transaction{
   id Int @id @default(autoincrement())
   user_id Int
   order_id String?
-  product_id Int
+  book_id Int
   rental_id Int @unique
   img_before_id Int? @unique
   img_after_id Int? @unique
@@ -251,7 +256,7 @@ model Transaction{
   imgbe Img? @relation("transactionbeImg",fields:[img_before_id],references:[id])
   imgaf Img? @relation("transactionafImg",fields:[img_after_id],references:[id])
   order Order? @relation("orderTransaction",fields:[order_id],references:[id])
-  product Product @relation("productTransaction",fields:[product_id],references:[id])
+  book Book @relation("bookTransaction",fields:[book_id],references:[id])
   rental Rental @relation("rentalTransaction",fields:[rental_id],references:[id])
   user User? @relation("userTransaction",fields:[user_id],references:[id])
 
@@ -272,4 +277,28 @@ model Rental{
   transaction Transaction? @relation("rentalTransaction")
 }
 
+model Publisher{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+
+  //relation
+  book Book[] @relation("bookPublisher")  
+}
+model Category{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  name_en String? @db.VarChar(100)
+
+  //relation
+  book BookCategory[]
+}
+
+model BookCategory{
+  id Int @id @default(autoincrement())
+  book_id Int
+  category_id Int
+  //relation
+  book Book @relation(fields:[book_id],references:[id])
+  category Category @relation(fields:[category_id],references:[id])
+}
 
